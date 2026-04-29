@@ -98,30 +98,39 @@ export default function DashboardPage() {
         alignItems: 'center',
         gap: 16,
         marginBottom: 32,
-        overflow: 'hidden',
         position: 'relative',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: '#991b1b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', color: '#991b1b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
           <AlertTriangle size={14} />
           Active Threats In India
         </div>
-        <div style={{ height: 14, width: 1, background: '#fca5a5' }} />
+        <div style={{ height: 14, width: 1, background: '#fca5a5', flexShrink: 0 }} />
         
-        <div style={{
-          display: 'flex',
-          gap: 32,
-          fontSize: 13,
-          fontWeight: 500,
-          color: '#7f1d1d',
-          animation: 'marquee 30s linear infinite',
-          whiteSpace: 'nowrap',
-        }}>
-          <span>• Digital arrest scam — fake CBI on video calls</span>
-          <span>• FedEx parcel scam — drugs allegation</span>
-          <span>• Loan app harassment — morphed photo threats</span>
-          <span>• AnyDesk remote access — OTP stealing tactics</span>
-          <span>• KYC verification update frauds</span>
+        <div style={{ flex: 1, overflow: 'hidden', position: 'relative', height: 20 }}>
+          <div style={{
+            display: 'flex',
+            gap: 48,
+            fontSize: 13,
+            fontWeight: 500,
+            color: '#7f1d1d',
+            whiteSpace: 'nowrap',
+            position: 'absolute',
+            animation: 'marquee 25s linear infinite',
+          }}>
+            <span>Digital arrest scam — fake CBI on video calls</span>
+            <span>• FedEx parcel scam — drugs allegation</span>
+            <span>• Loan app harassment — morphed photo threats</span>
+            <span>• AnyDesk remote access — OTP stealing tactics</span>
+            <span>• KYC verification update frauds</span>
+            {/* Duplicate for smooth loop */}
+            <span>• Digital arrest scam — fake CBI on video calls</span>
+            <span>• FedEx parcel scam — drugs allegation</span>
+            <span>• Loan app harassment — morphed photo threats</span>
+            <span>• AnyDesk remote access — OTP stealing tactics</span>
+            <span>• KYC verification update frauds</span>
+          </div>
         </div>
+
         <style>{`
           @keyframes marquee {
             0% { transform: translate3d(0, 0, 0); }
@@ -249,17 +258,7 @@ export default function DashboardPage() {
         </div>
       </div>
       
-      {/* Emergent Badge */}
-      <div style={{
-        position: 'fixed', bottom: 24, right: 24,
-        display: 'flex', alignItems: 'center', gap: 6,
-        background: '#000000', color: '#ffffff', padding: '8px 16px',
-        borderRadius: 30, fontSize: 11, fontWeight: 600,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 100
-      }}>
-        <span style={{ width: 14, height: 14, background: '#ffffff', borderRadius: '50%', display: 'inline-block' }} />
-        Made with Emergent
-      </div>
+
 
     </div>
   )
