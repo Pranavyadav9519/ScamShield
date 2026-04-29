@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
-import { Shield, Search, TrendingUp, AlertTriangle, Archive, Phone, ChevronRight, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { Shield, Search, TrendingUp, AlertTriangle, Archive, Phone, ChevronRight, Clock, CheckCircle, XCircle, Video, BookOpen } from 'lucide-react'
 
 interface Stats {
   totalScans: number
