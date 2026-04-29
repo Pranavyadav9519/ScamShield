@@ -4,23 +4,24 @@ import { getUserFromToken } from '@/lib/auth'
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const token = req.headers.get('authorization')?.replace('Bearer ', '')
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const user = await getUserFromToken(token)
     if (!user) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
 
     const evidence = await prisma.evidence.findFirst({
-      where: { id: params.id, userId: user.id },
+      where: { id, userId: user.id },
     })
 
     if (!evidence) {
       return NextResponse.json({ error: 'Evidence not found' }, { status: 404 })
     }
 
-    await prisma.evidence.delete({ where: { id: params.id } })
+    await prisma.evidence.delete({ where: { id } })
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('Evidence DELETE error:', err)
@@ -30,9 +31,10 @@ export async function DELETE(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const token = req.headers.get('authorization')?.replace('Bearer ', '')
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const user = await getUserFromToken(token)
@@ -40,7 +42,7 @@ export async function PATCH(
 
     const body = await req.json()
     const evidence = await prisma.evidence.findFirst({
-      where: { id: params.id, userId: user.id },
+      where: { id, userId: user.id },
     })
 
     if (!evidence) {
@@ -48,7 +50,7 @@ export async function PATCH(
     }
 
     const updated = await prisma.evidence.update({
-      where: { id: params.id },
+      where: { id },
       data: body,
     })
 
