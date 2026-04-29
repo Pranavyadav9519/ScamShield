@@ -71,14 +71,20 @@ export default function PanicPage() {
     }
   }
 
-  const triggerPanic = () => {
-    // In a real implementation, this would send SMS/email via Twilio or similar
-    // For now, we open tel: links for all contacts in sequence
+  const triggerPanic = async () => {
+    if (!token) return
     setPanicActive(true)
-    contacts.forEach((c) => {
-      window.open(`tel:${c.phone}`, '_blank')
-    })
-    setTimeout(() => setPanicActive(false), 5000)
+    try {
+      await fetch('/api/panic', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      // Still trigger a manual call if they click the individual contacts below
+    } catch (err) {
+      console.error('Panic trigger error:', err)
+    } finally {
+      setTimeout(() => setPanicActive(false), 8000)
+    }
   }
 
   return (
