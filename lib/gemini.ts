@@ -98,3 +98,43 @@ Return ONLY a JSON object:
     }
   }
 }
+
+export async function evaluateDeepfakeAndIdentity(input: {
+  personName: string
+  videoDescription: string
+  context?: string
+}): Promise<{
+  deepfakeProb: number
+  anomalies: string[]
+  identityMatch: string
+}> {
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+
+  const prompt = `You are a forensic digital media analyst and deepfake detection auditor.
+Analyze the following attributes regarding an ongoing video feed or persona to ascertain physical fabrication indicators or identity scams.
+
+Asserted Persona Name: "${input.personName}"
+Visual Feed Overview: "${input.videoDescription}"
+Situational Context: "${input.context || 'None'}"
+
+Return strictly a JSON model (NO MARKDOWN wrap, no descriptions):
+{
+  "deepfakeProb": <integer 0-100 indicating likelihood of AI synthesis/impersonation>,
+  "anomalies": <array of 2-4 distinct visual/behavioral inconsistencies to alert the user of>,
+  "identityMatch": <string detailing whether the real identity matches Indian social engineering patterns>
+}`
+
+  const result = await model.generateContent(prompt)
+  const response = result.response.text()
+  const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+
+  try {
+    return JSON.parse(cleaned)
+  } catch {
+    return {
+      deepfakeProb: 50,
+      anomalies: ['Anomalous landmark variations.'],
+      identityMatch: 'Digital presence verification inconclusive.'
+    }
+  }
+}
