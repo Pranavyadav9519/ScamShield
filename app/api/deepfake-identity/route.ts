@@ -15,16 +15,17 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { personName, videoDescription, context } = body
+    const { personName, videoDescription, context, image } = body
 
-    if (!personName && !videoDescription) {
-      return NextResponse.json({ error: 'Metadata attributes required for AI profiling.' }, { status: 400 })
+    if (!personName && !videoDescription && !image) {
+      return NextResponse.json({ error: 'Metadata attributes or visual snapshots required for AI profiling.' }, { status: 400 })
     }
 
     const assessment = await evaluateDeepfakeAndIdentity({
       personName: personName || 'Unknown',
-      videoDescription: videoDescription || 'Standard visual relay',
-      context
+      videoDescription: videoDescription || 'Visual snapshot analysis request',
+      context,
+      image
     })
 
     return NextResponse.json(assessment)
