@@ -52,182 +52,182 @@ export default function AuthPage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'row', fontFamily: 'Inter, sans-serif' }}>
+      
+      {/* Left Split: Dark Cybersecurity Aesthetic */}
+      <div style={{
+        flex: 1,
+        background: '#0a0f1d',
+        color: '#ffffff',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--bg-primary)',
-        padding: '24px',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        padding: '40px 60px',
         position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Background glow orbs */}
-      <div style={{
-        position: 'absolute', top: '20%', left: '10%',
-        width: 400, height: 400,
-        background: 'radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%)',
-        borderRadius: '50%', pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', bottom: '15%', right: '10%',
-        width: 300, height: 300,
-        background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)',
-        borderRadius: '50%', pointerEvents: 'none',
-      }} />
-
-      <div className="fade-in" style={{ width: '100%', maxWidth: 440 }}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: 64, height: 64,
-            background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-            borderRadius: 18, marginBottom: 16,
-            boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
-          }}>
-            <Shield size={32} color="white" />
+      }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Shield size={28} color="#3b82f6" />
+            <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '0.5px' }}>ScamShield <span style={{ color: '#94a3b8', fontSize: 14, fontWeight: 500 }}>VERIFY</span></span>
           </div>
-          <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 4 }}>
-            Scam<span className="gradient-text">Shield</span>
+        </div>
+
+        <div style={{ maxWidth: 480 }}>
+          <span style={{ color: '#3b82f6', fontSize: 13, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase' }}>Context-aware fraud detection</span>
+          <h1 style={{ fontSize: 44, fontWeight: 800, lineHeight: '52px', marginTop: 16, marginBottom: 24, color: '#f8fafc' }}>
+            Not detecting numbers.<br />
+            <span style={{ color: '#3b82f6' }}>Detecting situations.</span>
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
-            {mode === 'login' ? 'Sign in to your account' : 'Create your account'}
+          <p style={{ fontSize: 15, color: '#94a3b8', lineHeight: '24px' }}>
+            Verify suspicious calls, video threats, and pressure tactics in real-time with scenario-based analysis trained on Indian cybercrime patterns.
           </p>
         </div>
 
-        {/* Card */}
-        <div className="glass" style={{ borderRadius: 20, padding: 32 }}>
-          {/* Mode tabs */}
-          <div style={{
-            display: 'flex', gap: 4, background: 'rgba(0,0,0,0.3)',
-            borderRadius: 12, padding: 4, marginBottom: 28,
-          }}>
-            {(['login', 'register'] as Mode[]).map((m) => (
-              <button
-                key={m}
-                onClick={() => { setMode(m); setError('') }}
-                style={{
-                  flex: 1, padding: '10px',
-                  borderRadius: 8, border: 'none', cursor: 'pointer',
-                  fontSize: 14, fontWeight: 600, fontFamily: 'Inter, sans-serif',
-                  transition: 'all 0.2s',
-                  background: mode === m ? 'var(--accent-blue)' : 'transparent',
-                  color: mode === m ? 'white' : 'var(--text-secondary)',
-                }}
-              >
-                {m === 'login' ? 'Sign In' : 'Sign Up'}
-              </button>
-            ))}
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#64748b', fontSize: 12 }}>
+          <Lock size={14} />
+          <span>Privacy-first. We never record calls. Verification is user-triggered.</span>
+        </div>
+      </div>
+
+      {/* Right Split: Clean Login Form */}
+      <div style={{
+        width: '500px',
+        background: '#ffffff',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        padding: '0 60px',
+        boxShadow: '-10px 0 30px rgba(0,0,0,0.02)',
+      }}>
+        <div style={{ maxWidth: 380, width: '100%', margin: '0 auto' }}>
+          <span style={{ color: '#64748b', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>
+            {mode === 'login' ? 'Sign In' : 'Get Started'}
+          </span>
+          <h2 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', marginTop: 4, marginBottom: 24 }}>
+            {mode === 'login' ? 'Welcome back' : 'Create an account'}
+          </h2>
+
+          {error && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '12px', background: '#fef2f2',
+              border: '1px solid #fee2e2', borderRadius: 8,
+              color: '#ef4444', fontSize: 13, marginBottom: 20,
+            }}>
+              <AlertCircle size={16} />
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {mode === 'register' && (
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 6 }}>
                   Full Name *
                 </label>
-                <div style={{ position: 'relative' }}>
-                  <User size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                  <input
-                    type="text"
-                    className="input-field"
-                    style={{ paddingLeft: 42 }}
-                    placeholder="John Doe"
-                    value={form.name}
-                    onChange={(e) => update('name', e.target.value)}
-                    required
-                  />
-                </div>
+                <input
+                  type="text"
+                  style={{
+                    width: '100%', padding: '12px 16px', borderRadius: 8,
+                    border: '1px solid #e2e8f0', color: '#0f172a', outline: 'none', fontSize: 14
+                  }}
+                  placeholder="John Doe"
+                  value={form.name}
+                  onChange={(e) => update('name', e.target.value)}
+                  required
+                />
               </div>
             )}
 
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 6 }}>
-                Email Address *
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 6 }}>
+                Email
               </label>
-              <div style={{ position: 'relative' }}>
-                <Mail size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input
-                  type="email"
-                  className="input-field"
-                  style={{ paddingLeft: 42 }}
-                  placeholder="john@example.com"
-                  value={form.email}
-                  onChange={(e) => update('email', e.target.value)}
-                  required
-                />
-              </div>
+              <input
+                type="email"
+                style={{
+                  width: '100%', padding: '12px 16px', borderRadius: 8,
+                  border: '1px solid #e2e8f0', color: '#0f172a', outline: 'none', fontSize: 14
+                }}
+                placeholder="test@scamshield.in"
+                value={form.email}
+                onChange={(e) => update('email', e.target.value)}
+                required
+              />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 6 }}>
-                Password *
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 6 }}>
+                Password
               </label>
-              <div style={{ position: 'relative' }}>
-                <Lock size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  className="input-field"
-                  style={{ paddingLeft: 42, paddingRight: 42 }}
-                  placeholder={mode === 'register' ? 'At least 8 characters' : 'Your password'}
-                  value={form.password}
-                  onChange={(e) => update('password', e.target.value)}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
+              <input
+                type="password"
+                style={{
+                  width: '100%', padding: '12px 16px', borderRadius: 8,
+                  border: '1px solid #e2e8f0', color: '#0f172a', outline: 'none', fontSize: 14
+                }}
+                placeholder="••••••••"
+                value={form.password}
+                onChange={(e) => update('password', e.target.value)}
+                required
+              />
             </div>
 
             {mode === 'register' && (
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 6 }}>
-                  Phone Number (optional)
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 6 }}>
+                  Phone (optional)
                 </label>
-                <div style={{ position: 'relative' }}>
-                  <Phone size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                  <input
-                    type="tel"
-                    className="input-field"
-                    style={{ paddingLeft: 42 }}
-                    placeholder="+1 (555) 000-0000"
-                    value={form.phone}
-                    onChange={(e) => update('phone', e.target.value)}
-                  />
-                </div>
+                <input
+                  type="tel"
+                  style={{
+                    width: '100%', padding: '12px 16px', borderRadius: 8,
+                    border: '1px solid #e2e8f0', color: '#0f172a', outline: 'none', fontSize: 14
+                  }}
+                  placeholder="+91 9999999999"
+                  value={form.phone}
+                  onChange={(e) => update('phone', e.target.value)}
+                />
               </div>
             )}
 
-            {error && (
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '12px 16px', background: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 10,
-                color: '#ef4444', fontSize: 13,
-              }}>
-                <AlertCircle size={16} />
-                {error}
-              </div>
-            )}
-
-            <button type="submit" className="btn-primary" disabled={loading} style={{ marginTop: 8, padding: '14px 24px' }}>
-              {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                background: '#0f172a', color: '#ffffff', border: 'none',
+                padding: '14px', borderRadius: 8, fontSize: 14, fontWeight: 600,
+                cursor: 'pointer', marginTop: 8, transition: 'background 0.2s'
+              }}
+            >
+              {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Create account'}
             </button>
           </form>
+
+          <p style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: '#64748b' }}>
+            {mode === 'login' ? (
+              <>New here? <span onClick={() => setMode('register')} style={{ color: '#3b82f6', cursor: 'pointer', fontWeight: 600 }}>Create an account</span></>
+            ) : (
+              <>Already have an account? <span onClick={() => setMode('login')} style={{ color: '#3b82f6', cursor: 'pointer', fontWeight: 600 }}>Sign in</span></>
+            )}
+          </p>
+        </div>
+        
+        {/* Emergent Badge */}
+        <div style={{
+          position: 'absolute', bottom: 24, right: 24,
+          display: 'flex', alignItems: 'center', gap: 6,
+          background: '#000000', color: '#ffffff', padding: '8px 16px',
+          borderRadius: 30, fontSize: 11, fontWeight: 600,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>
+          <span style={{ width: 14, height: 14, background: '#ffffff', borderRadius: '50%', display: 'inline-block' }} />
+          Made with Emergent
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: 'var(--text-muted)' }}>
-          Protected by 256-bit encryption
-        </p>
       </div>
     </div>
+  )
+}
   )
 }
