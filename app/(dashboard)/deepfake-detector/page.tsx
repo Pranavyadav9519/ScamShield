@@ -9,16 +9,32 @@ export default function DeepfakeDetectorPage() {
   const [scanning, setScanning] = useState(false)
   const [personName, setPersonName] = useState('')
   const [videoDescription, setVideoDescription] = useState('')
+  const [imageFile, setImageFile] = useState<{ data: string; mimeType: string } | null>(null)
   const [verdict, setVerdict] = useState<{ deepfakeProb: number; anomalies: string[]; identityMatch: string } | null>(null)
   const [error, setError] = useState('')
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const base64Data = (reader.result as string).split(',')[1]
+      setImageFile({
+        data: base64Data,
+        mimeType: file.type
+      })
+    }
+    reader.readAsDataURL(file)
+  }
 
   const runForensicScan = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setVerdict(null)
 
-    if (!personName && !videoDescription) {
-      setError('Please input an identity name or video feed description parameters.')
+    if (!personName && !videoDescription && !imageFile) {
+      setError('Please provide attributes or upload media artifacts.')
       return
     }
 
@@ -31,7 +47,7 @@ export default function DeepfakeDetectorPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ personName, videoDescription })
+        body: JSON.stringify({ personName, videoDescription, image: imageFile })
       })
 
       if (!res.ok) {
@@ -158,6 +174,16 @@ export default function DeepfakeDetectorPage() {
                 onChange={(e) => setVideoDescription(e.target.value)}
                 rows={3}
                 style={{ width: '100%', padding: '10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', marginTop: 4, resize: 'none' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Upload Target Snapshot</label>
+              <input 
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                style={{ width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, outline: 'none', marginTop: 4, background: '#f8fafc' }}
               />
             </div>
 
