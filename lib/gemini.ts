@@ -103,6 +103,7 @@ export async function evaluateDeepfakeAndIdentity(input: {
   personName: string
   videoDescription: string
   context?: string
+  image?: { data: string; mimeType: string }
 }): Promise<{
   deepfakeProb: number
   anomalies: string[]
@@ -111,7 +112,7 @@ export async function evaluateDeepfakeAndIdentity(input: {
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
   const prompt = `You are a forensic digital media analyst and deepfake detection auditor.
-Analyze the following attributes regarding an ongoing video feed or persona to ascertain physical fabrication indicators or identity scams.
+Analyze the following attributes (and inspect the attached image file for spatial pixel manipulation, facial warping, edge artifacts, and composite lighting flaws) to ascertain physical fabrication indicators.
 
 Asserted Persona Name: "${input.personName}"
 Visual Feed Overview: "${input.videoDescription}"
@@ -124,7 +125,17 @@ Return strictly a JSON model (NO MARKDOWN wrap, no descriptions):
   "identityMatch": <string detailing whether the real identity matches Indian social engineering patterns>
 }`
 
-  const result = await model.generateContent(prompt)
+  let contents: any[] = [prompt]
+  if (input.image) {
+    contents.push({
+      inlineData: {
+        data: input.image.data,
+        mimeType: input.image.mimeType
+      }
+    })
+  }
+
+  const result = await model.generateContent(contents)
   const response = result.response.text()
   const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
 
