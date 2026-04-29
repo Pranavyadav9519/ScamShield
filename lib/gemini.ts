@@ -125,9 +125,9 @@ Return strictly a JSON model (NO MARKDOWN wrap, no descriptions):
   "identityMatch": <string detailing whether the real identity matches Indian social engineering patterns>
 }`
 
-  let contents: any[] = [prompt]
+  const parts: any[] = [{ text: prompt }]
   if (input.image) {
-    contents.push({
+    parts.push({
       inlineData: {
         data: input.image.data,
         mimeType: input.image.mimeType
@@ -135,7 +135,7 @@ Return strictly a JSON model (NO MARKDOWN wrap, no descriptions):
     })
   }
 
-  const result = await model.generateContent(contents)
+  const result = await model.generateContent(parts)
   const response = result.response.text()
   const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
 

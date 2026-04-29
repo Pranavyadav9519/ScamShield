@@ -51,7 +51,8 @@ export default function DeepfakeDetectorPage() {
       })
 
       if (!res.ok) {
-        throw new Error('Forensic scanner timed out. Try again.')
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.error || 'Forensic analysis failed to initialize.')
       }
 
       const data = await res.json()
