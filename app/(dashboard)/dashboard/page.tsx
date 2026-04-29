@@ -86,138 +86,181 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div style={{ padding: '32px 36px', maxWidth: 1200, margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ marginBottom: 36 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 6 }}>
-          Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'},{' '}
-          <span className="gradient-text">{user?.name?.split(' ')[0]}</span> 👋
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: 15 }}>
-          Here's an overview of your fraud protection activity.
-        </p>
+    <div style={{ minHeight: '100vh', background: '#f8fafc', color: '#0f172a', padding: '24px 40px', fontFamily: 'Inter, sans-serif' }}>
+      
+      {/* Active Threats Horizontal Ticker */}
+      <div style={{
+        background: '#fef2f2',
+        border: '1px solid #fee2e2',
+        borderRadius: 8,
+        padding: '12px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        marginBottom: 32,
+        overflow: 'hidden',
+        position: 'relative',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 700, letterSpacing: '1px', color: '#991b1b', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+          <AlertTriangle size={14} />
+          Active Threats In India
+        </div>
+        <div style={{ height: 14, width: 1, background: '#fca5a5' }} />
+        
+        <div style={{
+          display: 'flex',
+          gap: 32,
+          fontSize: 13,
+          fontWeight: 500,
+          color: '#7f1d1d',
+          animation: 'marquee 30s linear infinite',
+          whiteSpace: 'nowrap',
+        }}>
+          <span>• Digital arrest scam — fake CBI on video calls</span>
+          <span>• FedEx parcel scam — drugs allegation</span>
+          <span>• Loan app harassment — morphed photo threats</span>
+          <span>• AnyDesk remote access — OTP stealing tactics</span>
+          <span>• KYC verification update frauds</span>
+        </div>
+        <style>{`
+          @keyframes marquee {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+          }
+        `}</style>
       </div>
 
-      {/* Stats grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 36 }}>
-        {statCards.map(({ label, value, icon: Icon, color, bg, description }) => (
-          <div key={label} className="glass card-glow-blue" style={{
-            borderRadius: 16, padding: 24, transition: 'all 0.25s',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
-              <div style={{ width: 44, height: 44, background: bg, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon size={22} color={color} />
-              </div>
-              <TrendingUp size={14} color="var(--text-muted)" />
-            </div>
-            <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 4 }}>{loading ? '—' : value}</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{label}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{description}</div>
+      {/* Main Header & Metrics Split */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 24, marginBottom: 32 }}>
+        
+        {/* Big Dark Blue Callout Banner */}
+        <div style={{
+          background: '#0a1128',
+          borderRadius: 16,
+          padding: '48px 40px',
+          color: '#ffffff',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          position: 'relative',
+        }}>
+          <span style={{ color: '#3b82f6', fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+            Real-time fraud verdict
+          </span>
+          <h1 style={{ fontSize: 40, fontWeight: 800, lineHeight: '48px', marginTop: 12, marginBottom: 16 }}>
+            Suspicious call right now?<br />
+            Verify in 30 seconds.
+          </h1>
+          <p style={{ color: '#94a3b8', fontSize: 15, marginBottom: 32, maxWidth: 480, lineHeight: '24px' }}>
+            Pick a scenario, answer a few yes/no questions, and get an instant scam verdict with the exact action to take.
+          </p>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button
+              onClick={() => router.push('/verify')}
+              style={{
+                background: '#ffffff', color: '#0f172a', border: 'none',
+                padding: '14px 24px', borderRadius: 8, fontSize: 14, fontWeight: 700,
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8
+              }}
+            >
+              Verify Now →
+            </button>
+            <button
+              onClick={() => router.push('/panic')}
+              style={{
+                background: 'rgba(255,255,255,0.05)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.1)',
+                padding: '14px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600,
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8
+              }}
+            >
+              <AlertTriangle size={16} /> Panic Mode
+            </button>
           </div>
-        ))}
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 24 }}>
-        {/* Recent Activity */}
-        <div className="glass" style={{ borderRadius: 16, padding: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-            <Clock size={18} color="var(--accent-blue)" />
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>Recent Scans</h2>
-          </div>
-
-          {loading ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {[1, 2, 3].map((i) => <div key={i} className="skeleton" style={{ height: 64 }} />)}
-            </div>
-          ) : recentScans.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>
-              <Search size={40} style={{ margin: '0 auto 12px', opacity: 0.3 }} />
-              <p>No scans yet. Start by verifying a message or URL.</p>
-              <button className="btn-primary" onClick={() => router.push('/verify')} style={{ marginTop: 16 }}>
-                Verify Now
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {recentScans.map((scan) => (
-                <div key={scan.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 14,
-                  padding: '14px 16px',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 12,
-                }}>
-                  <div style={{
-                    width: 8, height: 8, minWidth: 8,
-                    borderRadius: '50%',
-                    background: riskColor(scan.riskLevel),
-                    boxShadow: `0 0 8px ${riskColor(scan.riskLevel)}`,
-                  }} />
-                  <div style={{ flex: 1, overflow: 'hidden' }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {scan.input}
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-                      {scan.inputType} · {new Date(scan.createdAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {riskIcon(scan.riskLevel)}
-                    <span style={{ fontSize: 12, fontWeight: 700, color: riskColor(scan.riskLevel), textTransform: 'capitalize' }}>
-                      {scan.riskLevel}
-                    </span>
-                  </div>
-                  <div style={{
-                    fontSize: 13, fontWeight: 700,
-                    color: riskColor(scan.riskLevel),
-                    minWidth: 36, textAlign: 'right',
-                  }}>
-                    {scan.riskScore}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
-        {/* Quick Actions */}
-        <div className="glass" style={{ borderRadius: 16, padding: 24 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20 }}>Quick Actions</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {quickActions.map(({ label, desc, href, icon: Icon, color }) => (
-              <button
-                key={href}
-                onClick={() => router.push(href)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 14,
-                  padding: '14px 16px', width: '100%',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 12, cursor: 'pointer',
-                  fontFamily: 'Inter, sans-serif', transition: 'all 0.2s', textAlign: 'left',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)'
-                  ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(59,130,246,0.3)'
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.03)'
-                  ;(e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border)'
-                }}
-              >
-                <div style={{ width: 38, height: 38, background: `${color}18`, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 38 }}>
-                  <Icon size={18} color={color} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{label}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{desc}</div>
-                </div>
-                <ChevronRight size={16} color="var(--text-muted)" />
-              </button>
-            ))}
+        {/* "YOUR SHIELD" Card Grid */}
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '32px 24px' }}>
+          <span style={{ color: '#64748b', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', display: 'block', marginBottom: 24 }}>
+            Your Shield
+          </span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+            <div>
+              <Shield size={20} color="#3b82f6" />
+              <div style={{ fontSize: 28, fontWeight: 800, marginTop: 8, color: '#0f172a' }}>{stats?.totalScans ?? 0}</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginTop: 2 }}>Verifications</div>
+            </div>
+            <div>
+              <AlertTriangle size={20} color="#ef4444" />
+              <div style={{ fontSize: 28, fontWeight: 800, marginTop: 8, color: '#0f172a' }}>{stats?.threatsDetected ?? 0}</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginTop: 2 }}>High Risk Caught</div>
+            </div>
+            <div>
+              <Phone size={20} color="#22c55e" />
+              <div style={{ fontSize: 28, fontWeight: 800, marginTop: 8, color: '#0f172a' }}>4</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginTop: 2 }}>Trusted Contacts</div>
+            </div>
+            <div>
+              <Archive size={20} color="#8b5cf6" />
+              <div style={{ fontSize: 28, fontWeight: 800, marginTop: 8, color: '#0f172a' }}>{stats?.totalEvidence ?? 0}</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginTop: 2 }}>Evidence Items</div>
+            </div>
           </div>
         </div>
+
       </div>
+
+      {/* Quick Actions Section */}
+      <div>
+        <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', marginBottom: 16 }}>Quick actions</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+          
+          <div onClick={() => router.push('/verify')} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '24px', cursor: 'pointer', transition: 'all 0.15s' }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = 'none')}>
+            <Shield size={24} color="#3b82f6" />
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginTop: 16, marginBottom: 4 }}>Scenario Verify</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>Police, parcel, KYC, more</div>
+          </div>
+
+          <div onClick={() => router.push('/caller-lookup')} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '24px', cursor: 'pointer', transition: 'all 0.15s' }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = 'none')}>
+            <Phone size={24} color="#3b82f6" />
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginTop: 16, marginBottom: 4 }}>Caller Lookup</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>Check spam reports</div>
+          </div>
+
+          <div onClick={() => router.push('/video-assist')} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '24px', cursor: 'pointer', transition: 'all 0.15s' }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = 'none')}>
+            <Video size={24} color="#3b82f6" />
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginTop: 16, marginBottom: 4 }}>Video Call Assist</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>Live overlay tips</div>
+          </div>
+
+          <div onClick={() => router.push('/library')} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '24px', cursor: 'pointer', transition: 'all 0.15s' }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = 'none')}>
+            <BookOpen size={24} color="#3b82f6" />
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginTop: 16, marginBottom: 4 }}>Scam Library</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>Know the patterns</div>
+          </div>
+
+        </div>
+      </div>
+      
+      {/* Emergent Badge */}
+      <div style={{
+        position: 'fixed', bottom: 24, right: 24,
+        display: 'flex', alignItems: 'center', gap: 6,
+        background: '#000000', color: '#ffffff', padding: '8px 16px',
+        borderRadius: 30, fontSize: 11, fontWeight: 600,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 100
+      }}>
+        <span style={{ width: 14, height: 14, background: '#ffffff', borderRadius: '50%', display: 'inline-block' }} />
+        Made with Emergent
+      </div>
+
     </div>
   )
 }
