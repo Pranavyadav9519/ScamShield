@@ -345,17 +345,7 @@ export default function ScenarioVerifyPage() {
         </div>
       )}
 
-      {/* Emergent Badge */}
-      <div style={{
-        position: 'fixed', bottom: 24, right: 24,
-        display: 'flex', alignItems: 'center', gap: 6,
-        background: '#000000', color: '#ffffff', padding: '8px 16px',
-        borderRadius: 30, fontSize: 11, fontWeight: 600,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 100
-      }}>
-        <span style={{ width: 14, height: 14, background: '#ffffff', borderRadius: '50%', display: 'inline-block' }} />
-        Made with Emergent
-      </div>
+
 
     </div>
   )
