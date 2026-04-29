@@ -1,68 +1,63 @@
-# ScamShield
+# 🛡️ ScamShield Verify
 
-An AI-powered fraud detection and scam protection application built with Next.js, Prisma, and Google Gemini.
+An advanced, context-aware cyber fraud classification suite tailored for Indian digital attack matrices. Uses targeted scoring protocols to intercept high-risk financial coercion attempts safely.
 
-## Features
+---
 
-- **Verify Now** — Paste any suspicious message, URL, or phone number and get an instant AI risk score with detailed analysis
-- **Caller Lookup** — Check if a phone number is a known scammer using AI + community reports
-- **Evidence Vault** — Securely store and manage evidence of scam attempts
-- **Panic Mode** — Set up trusted contacts to alert in emergency situations
-- **Dashboard** — Overview of your protection activity and recent scans
+### 🚨 Real-Time Hazard Coverage
+* **Digital Arrest Protocols**: Detection of fake interrogations by actors posing as CBI/ED.
+* **FedEx Parcel Intercepts**: Identification of fraudulent narcotics parcel holding fees.
+* **KYC / SIM Terminations**: Safeguards against phishing ultimatums tied to utility portals.
+* **Screenshare Hijacking**: Mitigation guidelines for AnyDesk/TeamViewer breaches.
 
-## Tech Stack
+---
 
-- **Frontend**: Next.js 14 (App Router), React, TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes
-- **Database**: SQLite via Prisma ORM
-- **AI**: Google Gemini 1.5 Flash API
-- **Auth**: JWT-based authentication with bcrypt password hashing
+## 💻 System Architecture
 
-## Getting Started
+The project integrates deterministic security algorithms mapping incident triggers dynamically:
 
-### Prerequisites
-- Node.js 18+
-- npm
+```mermaid
+graph TD
+    A[Suspicious Communication] --> B{Platform Filter}
+    B -->|Voice / SMS| C[Reputation Analytics]
+    B -->|Video Overlay| D[Assist Heuristics]
+    C --> E[ScamShield Core Verdict]
+    D --> E
+    E --> F[Law Enforcement Export]
+```
 
-### Setup
+### ⚙️ Technology Framework
+- **Client Core**: Next.js 16 (App Router)
+- **Database Mapping**: Prisma ORM 
+- **Modular state context components**
 
-1. Clone the repo and install dependencies
+---
+
+## 🛠️ Installation Guide
+
+1. **Initiate Setup**:
    ```bash
    git clone https://github.com/Pranavyadav9519/ScamShield.git
    cd ScamShield
+   ```
+
+2. **Install Dependencies**:
+   ```bash
    npm install
    ```
 
-2. Copy `.env.example` to `.env` and fill in your values.
-
-3. Setup the database
+3. **Database Configuration**:
    ```bash
    npx prisma generate
    npx prisma db push
    ```
 
-4. Start the dev server
+4. **Boot Sandbox environment**:
    ```bash
    npm run dev
    ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+---
 
-## Project Structure
-
-```
-ScamShield/
-├── app/
-│   ├── api/               # Backend API routes
-│   │   ├── auth/          # Login & register
-│   │   ├── evaluate-risk/ # AI risk analysis (Gemini)
-│   │   ├── evidence/      # Evidence CRUD
-│   │   ├── caller-lookup/ # Phone number lookup
-│   │   ├── contacts/      # Trusted contacts
-│   │   └── dashboard/     # Stats aggregation
-│   └── (dashboard)/       # Protected frontend pages
-├── components/            # Reusable UI components
-├── context/               # React context providers
-├── lib/                   # Utilities (prisma, gemini, auth)
-└── prisma/                # Database schema
-```
+### 🔑 Verified Deployments
+*Developed efficiently with high performance coverage.*
