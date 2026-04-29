@@ -13,7 +13,7 @@ export async function evaluateScamRisk(userInput: {
   indicators: string[]
   advice: string
 }> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
   const systemPrompt = `You are ScamShield AI, an expert fraud analyst and cybersecurity specialist with over 15 years of experience identifying scams, phishing attacks, and social engineering. Your job is to analyze submitted content and provide a thorough risk assessment.
 
@@ -109,7 +109,7 @@ export async function evaluateDeepfakeAndIdentity(input: {
   anomalies: string[]
   identityMatch: string
 }> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
   const prompt = `You are a forensic digital media analyst and deepfake detection auditor.
 Analyze the following attributes (and inspect the attached image file for spatial pixel manipulation, facial warping, edge artifacts, and composite lighting flaws) to ascertain physical fabrication indicators.
