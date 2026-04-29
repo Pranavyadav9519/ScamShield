@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import {
-  Shield, LayoutDashboard, Phone, Video,
+  Shield, LayoutDashboard, Phone, Video, Eye,
   AlertTriangle, Archive, BookOpen, Clock, LogOut
 } from 'lucide-react'
 
@@ -13,6 +13,7 @@ const navItems = [
   { href: '/verify', label: 'Verify Now', icon: Shield },
   { href: '/caller-lookup', label: 'Caller Lookup', icon: Phone },
   { href: '/video-assist', label: 'Video Call Assist', icon: Video },
+  { href: '/deepfake-detector', label: 'Deepfake Shield', icon: Eye },
   { href: '/panic', label: 'Panic Mode', icon: AlertTriangle },
   { href: '/evidence', label: 'Evidence Vault', icon: Archive },
   { href: '/library', label: 'Scam Library', icon: BookOpen },
