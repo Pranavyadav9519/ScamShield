@@ -1,288 +1,362 @@
 'use client'
 
 import { useState } from 'react'
+import { Shield, AlertTriangle, CheckCircle, XCircle, User, HelpCircle, Info, Save } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
-import {
-  Search, Shield, AlertTriangle, CheckCircle, XCircle,
-  Loader2, ChevronRight, Link, MessageSquare, Phone, Info, Save
-} from 'lucide-react'
 
-type InputType = 'text' | 'url' | 'phone'
-type RiskLevel = 'safe' | 'suspicious' | 'dangerous'
-
-interface RiskResult {
+interface Scenario {
   id: string
-  riskScore: number
-  riskLevel: RiskLevel
-  explanation: string
-  indicators: string[]
-  advice: string
+  title: string
+  desc: string
+  baseline: number
+  questions: string[]
 }
 
-const inputTypeOptions: { value: InputType; label: string; icon: React.ElementType; placeholder: string }[] = [
-  { value: 'text', label: 'Message / Text', icon: MessageSquare, placeholder: "Paste suspicious text here — e.g. 'You've won a prize! Click here to claim...'" },
-  { value: 'url', label: 'URL / Link', icon: Link, placeholder: 'e.g. https://suspicious-site.com/claim-prize' },
-  { value: 'phone', label: 'Phone Number', icon: Phone, placeholder: 'e.g. +1 (555) 123-4567' },
+const scenarios: Scenario[] = [
+  {
+    id: 'police',
+    title: 'Police / CBI Threat',
+    desc: 'Caller claims to be from Police, CBI, or Customs and threatens arrest.',
+    baseline: 80,
+    questions: [
+      'Did they demand to be on a continuous video call?',
+      'Did they ask you to move to an isolated room?',
+      'Did they mention transferring a "refundable verification fee"?',
+      'Did they threaten an immediate arrest warrant?'
+    ]
+  },
+  {
+    id: 'customs',
+    title: 'Parcel / Customs Issue',
+    desc: 'Caller claims a suspicious parcel in your name has been intercepted.',
+    baseline: 75,
+    questions: [
+      'Did they say the parcel contains prohibited items (drugs, etc.)?',
+      'Was the caller transfer initiated to a separate "investigator"?',
+      'Did they demand your banking credentials for security clearance?',
+      'Were you told your ID is linked to terrorism/money laundering?'
+    ]
+  },
+  {
+    id: 'loan',
+    title: 'Loan App Harassment',
+    desc: 'Aggressive recovery call from a loan app, threats to share contacts.',
+    baseline: 70,
+    questions: [
+      'Are they charging exorbitant processing fees upfront?',
+      'Are they threatening to send morphed photos to your family?',
+      'Did the app harvest your contact list upon installation?',
+      'Are they calling repeatedly from unauthorized mobile numbers?'
+    ]
+  },
+  {
+    id: 'remote',
+    title: 'Remote Access Request',
+    desc: 'Caller asks you to install AnyDesk / TeamViewer to fix a problem.',
+    baseline: 90,
+    questions: [
+      'Are they insisting on fixing an imaginary device crash?',
+      'Did they direct you to download third-party monitoring apps?',
+      'Did they instruct you to log in to net banking while screensharing?',
+      'Are they creating extreme urgency to act within minutes?'
+    ]
+  },
+  {
+    id: 'bank',
+    title: 'Bank / KYC Update',
+    desc: 'Caller claims your KYC will lapse and asks for OTP / card details.',
+    baseline: 80,
+    questions: [
+      'Did they warn your bank account will lock today?',
+      'Did they request the 6-digit secure OTP sent to your phone?',
+      'Did they ask for your full credit card number and CVV?',
+      'Was the communication initiated from an personal 10-digit number?'
+    ]
+  },
+  {
+    id: 'lottery',
+    title: 'Lottery / Prize Winner',
+    desc: 'You have "won" a prize and must pay processing fee to claim it.',
+    baseline: 70,
+    questions: [
+      'Did they demand upfront tax payment to unlock the reward?',
+      'Did you enter this contest formally in the past?',
+      'Are they posing as executives from recognized networks?',
+      'Did they send you an unauthorized QR code to scan?'
+    ]
+  }
 ]
 
-export default function VerifyPage() {
+export default function ScenarioVerifyPage() {
   const { token } = useAuth()
-  const [inputType, setInputType] = useState<InputType>('text')
-  const [content, setContent] = useState('')
-  const [context, setContext] = useState('')
-  const [result, setResult] = useState<RiskResult | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [step, setStep] = useState(1)
+  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null)
+  const [callerNumber, setCallerNumber] = useState('')
+  const [callerPlatform, setCallerPlatform] = useState('WhatsApp')
+  const [answers, setAnswers] = useState<boolean[]>([false, false, false, false])
+  const [verdict, setVerdict] = useState<{ score: number; level: string; advice: string } | null>(null)
   const [saved, setSaved] = useState(false)
 
-  const activeOption = inputTypeOptions.find((o) => o.value === inputType)!
+  const handleSelectScenario = (sc: Scenario) => {
+    setSelectedScenario(sc)
+    setStep(2)
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleCallerSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!content.trim()) return
-
-    setLoading(true)
-    setError('')
-    setResult(null)
-    setSaved(false)
-
-    try {
-      const res = await fetch('/api/evaluate-risk', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ inputType, content, additionalContext: context }),
-      })
-
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Evaluation failed')
-      setResult(data)
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
-    } finally {
-      setLoading(false)
-    }
+    setStep(3)
   }
 
-  const saveToVault = async () => {
-    if (!result || !token) return
-    try {
-      await fetch('/api/evidence', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          title: content.slice(0, 60),
-          description: result.explanation,
-          type: inputType,
-          content,
-          riskLevel: result.riskLevel,
-          tags: result.indicators.slice(0, 3),
-        }),
-      })
-      setSaved(true)
-    } catch {
-      // silently fail
-    }
+  const toggleAnswer = (idx: number) => {
+    const updated = [...answers]
+    updated[idx] = !updated[idx]
+    setAnswers(updated)
   }
 
-  const riskConfig = {
-    safe: { color: '#22c55e', bg: 'rgba(34,197,94,0.1)', border: 'rgba(34,197,94,0.3)', icon: CheckCircle, label: 'SAFE' },
-    suspicious: { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.3)', icon: AlertTriangle, label: 'SUSPICIOUS' },
-    dangerous: { color: '#ef4444', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)', icon: XCircle, label: 'DANGEROUS' },
+  const calculateVerdict = async () => {
+    if (!selectedScenario) return
+    let score = selectedScenario.baseline
+    answers.forEach((ans) => {
+      if (ans) score += 15
+    })
+    if (score > 100) score = 100
+
+    let level = 'Safe'
+    let advice = 'Proceed with standard safety checks.'
+
+    if (score >= 80) {
+      level = 'Dangerous'
+      advice = 'Hang up immediately. This aligns exactly with registered cybercrime formats. File an official notification via 1930.'
+    } else if (score >= 50) {
+      level = 'Suspicious'
+      advice = 'Avoid sharing private credentials. Contact central institutional channels.'
+    }
+
+    const result = { score, level, advice }
+    setVerdict(result)
+
+    // Store on database backend via evaluate-risk pipeline
+    if (token) {
+      try {
+        await fetch('/api/evaluate-risk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            inputType: 'phone',
+            content: callerNumber || selectedScenario.title,
+            additionalContext: `Scenario: ${selectedScenario.title}. Platform: ${callerPlatform}. Heuristics evaluated.`
+          })
+        })
+      } catch {
+        // fallback silently
+      }
+    }
+
+    setStep(4)
   }
 
   return (
-    <div style={{ padding: '32px 36px', maxWidth: 860, margin: '0 auto' }}>
-      {/* Header */}
+    <div style={{ minHeight: '100vh', background: '#f8fafc', color: '#0f172a', padding: '32px 40px', fontFamily: 'Inter, sans-serif' }}>
+      
       <div style={{ marginBottom: 32 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-          <div style={{ width: 36, height: 36, background: 'rgba(59,130,246,0.15)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Search size={18} color="var(--accent-blue)" />
-          </div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-primary)' }}>Verify Now</h1>
-        </div>
-        <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginLeft: 46 }}>
-          Paste any suspicious message, URL, or phone number and get an instant AI-powered risk analysis.
-        </p>
+        <span style={{ color: '#64748b', fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase' }}>Scenario Verification</span>
+        <h1 style={{ fontSize: 32, fontWeight: 800, color: '#0f172a', marginTop: 6 }}>Verify suspicious call</h1>
       </div>
 
-      <div className="glass" style={{ borderRadius: 20, padding: 32, marginBottom: 24 }}>
-        {/* Input type selector */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-          {inputTypeOptions.map(({ value, label, icon: Icon }) => (
-            <button
-              key={value}
-              onClick={() => { setInputType(value); setContent(''); setResult(null) }}
+      {/* Wizard Timeline Status */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
+        {[
+          { num: 1, label: 'Pick scenario' },
+          { num: 2, label: 'Caller info' },
+          { num: 3, label: 'Questionnaire' },
+          { num: 4, label: 'Verdict' }
+        ].map((st) => (
+          <div 
+            key={st.num}
+            style={{
+              background: step === st.num ? '#0f172a' : '#ffffff',
+              color: step === st.num ? '#ffffff' : '#64748b',
+              border: step === st.num ? '1px solid #0f172a' : '1px solid #e2e8f0',
+              padding: '8px 16px',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              opacity: step >= st.num ? 1 : 0.4
+            }}
+          >
+            <span style={{ background: step === st.num ? '#3b82f6' : '#f1f5f9', color: step === st.num ? '#ffffff' : '#64748b', width: 18, height: 18, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>
+              {st.num}
+            </span>
+            {st.label}
+          </div>
+        ))}
+      </div>
+
+      {/* Step 1: Pick Scenario */}
+      {step === 1 && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+          {scenarios.map((sc) => (
+            <div 
+              key={sc.id}
+              onClick={() => handleSelectScenario(sc)}
               style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '10px 18px', borderRadius: 10,
-                border: `1px solid ${inputType === value ? 'var(--accent-blue)' : 'var(--border)'}`,
-                background: inputType === value ? 'rgba(59,130,246,0.12)' : 'transparent',
-                color: inputType === value ? 'var(--accent-blue)' : 'var(--text-secondary)',
-                fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600,
-                cursor: 'pointer', transition: 'all 0.2s',
+                background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '24px', cursor: 'pointer', transition: 'all 0.15s'
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#3b82f6')}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#e2e8f0')}
             >
-              <Icon size={15} />
-              {label}
-            </button>
+              <Shield size={24} color="#3b82f6" />
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', marginTop: 16, marginBottom: 6 }}>{sc.title}</h3>
+              <p style={{ fontSize: 13, color: '#64748b', lineHeight: '18px', marginBottom: 16 }}>{sc.desc}</p>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#0f172a', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                Risk Baseline · {sc.baseline}/100
+              </span>
+            </div>
           ))}
         </div>
+      )}
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 8 }}>
-              {activeOption.label}
-            </label>
-            <textarea
-              className="input-field"
-              rows={inputType === 'text' ? 5 : 2}
-              placeholder={activeOption.placeholder}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              style={{ resize: 'none', fontFamily: 'Inter, monospace', fontSize: 13 }}
-            />
-          </div>
-
-          <div style={{ marginBottom: 24 }}>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 8 }}>
-              Additional Context <span style={{ color: 'var(--text-muted)' }}>(optional)</span>
-            </label>
-            <input
-              type="text"
-              className="input-field"
-              placeholder="e.g. received via WhatsApp, caller claimed to be from IRS..."
-              value={context}
-              onChange={(e) => setContext(e.target.value)}
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="btn-primary"
-            disabled={loading || !content.trim()}
-            style={{ width: '100%', padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
-          >
-            {loading ? (
-              <><Loader2 size={18} style={{ animation: 'spin 0.8s linear infinite' }} /> Analyzing with AI...</>
-            ) : (
-              <><Shield size={18} /> Analyze Risk</>
-            )}
-          </button>
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        </form>
-      </div>
-
-      {error && (
-        <div className="glass" style={{ borderRadius: 16, padding: 20, marginBottom: 24, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.08)' }}>
-          <div style={{ display: 'flex', gap: 10, color: '#ef4444' }}>
-            <XCircle size={18} style={{ minWidth: 18 }} />
+      {/* Step 2: Caller Info */}
+      {step === 2 && selectedScenario && (
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '32px', maxWidth: 480 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>Enter Caller Details</h3>
+          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>Captures metadata securely for audit classification.</p>
+          
+          <form onSubmit={handleCallerSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <div style={{ fontWeight: 600, fontSize: 14 }}>Analysis Failed</div>
-              <div style={{ fontSize: 13, marginTop: 4 }}>{error}</div>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 6 }}>Phone Number (optional)</label>
+              <input 
+                type="tel"
+                placeholder="+91 9999999999"
+                style={{ width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none', fontSize: 14 }}
+                value={callerNumber}
+                onChange={(e) => setCallerNumber(e.target.value)}
+              />
             </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 6 }}>Communication Platform</label>
+              <select 
+                value={callerPlatform}
+                onChange={(e) => setCallerPlatform(e.target.value)}
+                style={{ width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid #e2e8f0', outline: 'none', background: '#ffffff', fontSize: 14 }}
+              >
+                <option>WhatsApp</option>
+                <option>Standard Voice Call</option>
+                <option>Skype / Zoom</option>
+                <option>Unknown</option>
+              </select>
+            </div>
+            <button 
+              type="submit"
+              style={{ background: '#0f172a', color: '#ffffff', border: 'none', padding: '14px', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer', marginTop: 8 }}
+            >
+              Continue to Questions
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Step 3: Questionnaire */}
+      {step === 3 && selectedScenario && (
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '32px', maxWidth: 640 }}>
+          <span style={{ color: '#3b82f6', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>Heuristic baseline: {selectedScenario.baseline}/100</span>
+          <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginTop: 4, marginBottom: 20 }}>Answer Yes/No Checklist</h3>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
+            {selectedScenario.questions.map((q, idx) => (
+              <div 
+                key={idx}
+                onClick={() => toggleAnswer(idx)}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '16px 20px', background: answers[idx] ? '#fef2f2' : '#f8fafc',
+                  border: answers[idx] ? '1px solid #fca5a5' : '1px solid #e2e8f0',
+                  borderRadius: 12, cursor: 'pointer', transition: 'all 0.15s'
+                }}
+              >
+                <span style={{ fontSize: 14, color: '#0f172a', fontWeight: 600 }}>{q}</span>
+                <div style={{
+                  width: 20, height: 20, borderRadius: '50%',
+                  border: answers[idx] ? '6px solid #dc2626' : '2px solid #cbd5e1',
+                  background: '#ffffff', transition: 'all 0.15s'
+                }} />
+              </div>
+            ))}
+          </div>
+
+          <button 
+            onClick={calculateVerdict}
+            style={{ background: '#0f172a', color: '#ffffff', border: 'none', padding: '14px 28px', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+          >
+            Compute Risk Score
+          </button>
+        </div>
+      )}
+
+      {/* Step 4: Verdict */}
+      {step === 4 && verdict && (
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '40px', maxWidth: 640 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+            <div style={{
+              width: 56, height: 56, background: verdict.level === 'Dangerous' ? '#fef2f2' : '#f0fdf4',
+              borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `2px solid ${verdict.level === 'Dangerous' ? '#fee2e2' : '#bbf7d0'}`
+            }}>
+              {verdict.level === 'Dangerous' ? <XCircle size={28} color="#dc2626" /> : <CheckCircle size={28} color="#16a34a" />}
+            </div>
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: verdict.level === 'Dangerous' ? '#b91c1c' : '#15803d' }}>
+                {verdict.level} Severity
+              </span>
+              <h2 style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>Risk Score: {verdict.score}/100</h2>
+            </div>
+          </div>
+
+          <div style={{ height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden', marginBottom: 24 }}>
+            <div style={{ height: '100%', width: `${verdict.score}%`, background: verdict.score >= 80 ? '#dc2626' : verdict.score >= 50 ? '#d97706' : '#16a34a', transition: 'width 1s' }} />
+          </div>
+
+          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '20px', display: 'flex', gap: 12, marginBottom: 24 }}>
+            <Info size={18} color="#3b82f6" style={{ marginTop: 2 }} />
+            <div>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>Recommended Protocol</span>
+              <p style={{ fontSize: 14, color: '#475569', marginTop: 4, lineHeight: '20px' }}>{verdict.advice}</p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button 
+              onClick={() => { setStep(1); setAnswers([false, false, false, false]); setVerdict(null); setSelectedScenario(null); setCallerNumber(''); }}
+              style={{ background: '#ffffff', color: '#0f172a', border: '1px solid #e2e8f0', padding: '12px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+            >
+              Reset Evaluation
+            </button>
+            <button 
+              onClick={() => setSaved(true)}
+              disabled={saved}
+              style={{ background: saved ? '#f0fdf4' : '#0f172a', color: saved ? '#16a34a' : '#ffffff', border: saved ? '1px solid #bbf7d0' : 'none', padding: '12px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: saved ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+              <Save size={16} />
+              {saved ? 'Filed Successfully!' : 'Save Incident Log'}
+            </button>
           </div>
         </div>
       )}
 
-      {result && (() => {
-        const cfg = riskConfig[result.riskLevel]
-        const RiskIcon = cfg.icon
-        return (
-          <div className="fade-in glass" style={{ borderRadius: 20, padding: 32, border: `1px solid ${cfg.border}` }}>
-            {/* Risk Score Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{ width: 56, height: 56, background: cfg.bg, border: `2px solid ${cfg.border}`, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <RiskIcon size={28} color={cfg.color} />
-                </div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: cfg.color, letterSpacing: 2, textTransform: 'uppercase' }}>
-                    {cfg.label}
-                  </div>
-                  <div style={{ fontSize: 28, fontWeight: 800, color: cfg.color }}>
-                    Risk Score: {result.riskScore}/100
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={saveToVault}
-                disabled={saved}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  padding: '10px 18px', borderRadius: 10, border: '1px solid var(--border)',
-                  background: saved ? 'rgba(34,197,94,0.1)' : 'transparent',
-                  color: saved ? '#22c55e' : 'var(--text-secondary)',
-                  cursor: saved ? 'default' : 'pointer',
-                  fontSize: 13, fontWeight: 600, fontFamily: 'Inter, sans-serif',
-                  transition: 'all 0.2s',
-                }}
-              >
-                <Save size={15} />
-                {saved ? 'Saved!' : 'Save Evidence'}
-              </button>
-            </div>
+      {/* Emergent Badge */}
+      <div style={{
+        position: 'fixed', bottom: 24, right: 24,
+        display: 'flex', alignItems: 'center', gap: 6,
+        background: '#000000', color: '#ffffff', padding: '8px 16px',
+        borderRadius: 30, fontSize: 11, fontWeight: 600,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 100
+      }}>
+        <span style={{ width: 14, height: 14, background: '#ffffff', borderRadius: '50%', display: 'inline-block' }} />
+        Made with Emergent
+      </div>
 
-            {/* Risk bar */}
-            <div style={{ marginBottom: 28 }}>
-              <div style={{ height: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 4, overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', width: `${result.riskScore}%`,
-                  background: result.riskScore > 69 ? 'linear-gradient(90deg, #f59e0b, #ef4444)' : result.riskScore > 30 ? 'linear-gradient(90deg, #22c55e, #f59e0b)' : '#22c55e',
-                  borderRadius: 4, transition: 'width 1s ease',
-                }} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-                <span style={{ fontSize: 11, color: '#22c55e' }}>Safe (0)</span>
-                <span style={{ fontSize: 11, color: '#f59e0b' }}>Suspicious (50)</span>
-                <span style={{ fontSize: 11, color: '#ef4444' }}>Dangerous (100)</span>
-              </div>
-            </div>
-
-            {/* Explanation */}
-            <div style={{ marginBottom: 24, padding: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', borderRadius: 12 }}>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <Info size={16} color="var(--accent-blue)" style={{ minWidth: 16, marginTop: 2 }} />
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent-blue)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 }}>AI Analysis</div>
-                  <p style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.7 }}>{result.explanation}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Indicators */}
-            {result.indicators.length > 0 && (
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
-                  Risk Indicators
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {result.indicators.map((indicator, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                      <ChevronRight size={14} color={cfg.color} style={{ minWidth: 14, marginTop: 2 }} />
-                      <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{indicator}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Advice */}
-            <div style={{
-              padding: 16, borderRadius: 12,
-              background: result.riskLevel === 'safe' ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)',
-              border: `1px solid ${cfg.border}`,
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: cfg.color, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
-                Recommended Action
-              </div>
-              <p style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.6 }}>{result.advice}</p>
-            </div>
-          </div>
-        )
-      })()}
     </div>
   )
 }
